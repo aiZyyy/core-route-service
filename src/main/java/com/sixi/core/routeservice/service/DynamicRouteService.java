@@ -8,11 +8,13 @@ import org.springframework.cloud.gateway.event.RefreshRoutesEvent;
 import org.springframework.cloud.gateway.filter.FilterDefinition;
 import org.springframework.cloud.gateway.handler.predicate.PredicateDefinition;
 import org.springframework.cloud.gateway.route.RouteDefinition;
+import org.springframework.cloud.gateway.route.RouteDefinitionWriter;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
+import reactor.core.publisher.Mono;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -34,6 +36,9 @@ public class DynamicRouteService implements ApplicationEventPublisherAware {
 
     private ApplicationEventPublisher publisher;
 
+    @Autowired
+    private RouteDefinitionWriter routeDefinitionWriter;
+
 
     @Autowired
     StringRedisTemplate redisTemplate;
@@ -53,6 +58,8 @@ public class DynamicRouteService implements ApplicationEventPublisherAware {
      */
     public String add(RouteAddForm routeAddForm) {
         RouteDefinition definition = assembleRouteDefinition(routeAddForm);
+        //放入内存
+        routeDefinitionWriter.save(Mono.just(definition)).subscribe();
         //存入redis
         redisTemplate.opsForHash().put(GATEWAY_ROUTES, definition.getId(), JSON.toJSONString(definition));
         notifyChanged();
@@ -67,6 +74,7 @@ public class DynamicRouteService implements ApplicationEventPublisherAware {
      */
     public String update(RouteAddForm routeAddForm) {
         try {
+            this.routeDefinitionWriter.delete(Mono.just(routeAddForm.getRouteId()));
             //删除redis信息
             redisTemplate.opsForHash().delete(GATEWAY_ROUTES, routeAddForm.getRouteId());
         } catch (Exception e) {
@@ -88,6 +96,7 @@ public class DynamicRouteService implements ApplicationEventPublisherAware {
      */
     public String delete(RouteDelForm routeDelForm) {
         try {
+            this.routeDefinitionWriter.delete(Mono.just(routeDelForm.getRouteId()));
             //删除redis信息
             redisTemplate.opsForHash().delete(GATEWAY_ROUTES, routeDelForm.getRouteId());
             notifyChanged();

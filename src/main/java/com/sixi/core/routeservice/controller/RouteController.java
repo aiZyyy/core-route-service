@@ -1,14 +1,12 @@
 package com.sixi.core.routeservice.controller;
 
 
-import com.sixi.core.routeservice.api.RouteServiceApi;
 import com.sixi.core.routeservice.domain.form.RouteAddForm;
 import com.sixi.core.routeservice.domain.form.RouteDelForm;
 import com.sixi.core.routeservice.service.DynamicRouteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
@@ -20,12 +18,11 @@ import javax.validation.Valid;
  * @Description:
  */
 @RestController
-public class RouteController implements RouteServiceApi {
+public class RouteController {
 
     @Autowired
     private DynamicRouteService dynamicRouteService;
 
-    @Override
     @PostMapping("/route/notify")
     public String notifyChanged() {
         dynamicRouteService.notifyChanged();
@@ -38,7 +35,6 @@ public class RouteController implements RouteServiceApi {
      * @param routeAddForm
      * @return
      */
-    @Override
     @PostMapping("/route/add")
     public String add(@Valid @RequestBody RouteAddForm routeAddForm) {
         try {
@@ -49,13 +45,11 @@ public class RouteController implements RouteServiceApi {
         return "success";
     }
 
-    @Override
     @PostMapping("/route/update")
     public String update(@RequestBody RouteAddForm routeAddForm) {
         return this.dynamicRouteService.update(routeAddForm);
     }
 
-    @Override
     @PostMapping("/route/delete")
     public String delete(@Valid @RequestBody RouteDelForm routeDelForm) {
         return this.dynamicRouteService.delete(routeDelForm);
