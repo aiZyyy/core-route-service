@@ -11,8 +11,12 @@ import org.springframework.cloud.gateway.route.RouteDefinition;
 import org.springframework.cloud.gateway.route.RouteDefinitionWriter;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 
@@ -30,6 +34,7 @@ import java.util.Map;
  */
 
 @Service
+@Transactional(rollbackFor = Exception.class)
 public class DynamicRouteService implements ApplicationEventPublisherAware {
 
     public static final String GATEWAY_ROUTES = "gateway_routes";
@@ -38,6 +43,9 @@ public class DynamicRouteService implements ApplicationEventPublisherAware {
 
     @Autowired
     private RouteDefinitionWriter routeDefinitionWriter;
+
+    @Autowired
+    private MongoTemplate mongoTemplate;
 
 
     @Autowired
@@ -51,39 +59,24 @@ public class DynamicRouteService implements ApplicationEventPublisherAware {
     }
 
     /**
-     * 增加路由
+     * 更新或添加路由
      *
      * @param routeAddForm
      * @return
      */
-    public String add(RouteAddForm routeAddForm) {
+    public String upsert(RouteAddForm routeAddForm) {
+        String routeId = routeAddForm.getRouteId();
         RouteDefinition definition = assembleRouteDefinition(routeAddForm);
-        //放入内存
-        routeDefinitionWriter.save(Mono.just(definition)).subscribe();
-        //存入redis
-        redisTemplate.opsForHash().put(GATEWAY_ROUTES, definition.getId(), JSON.toJSONString(definition));
-        notifyChanged();
-        return "success";
-    }
-
-    /**
-     * 更新路由
-     *
-     * @param routeAddForm
-     * @return
-     */
-    public String update(RouteAddForm routeAddForm) {
         try {
-            this.routeDefinitionWriter.delete(Mono.just(routeAddForm.getRouteId()));
-            //删除redis信息
-            redisTemplate.opsForHash().delete(GATEWAY_ROUTES, routeAddForm.getRouteId());
+            //放入内存
+            routeDefinitionWriter.save(Mono.just(definition)).subscribe();
+            redisTemplate.opsForHash().put(GATEWAY_ROUTES, routeId, JSON.toJSONString(definition));
+            Query query = new Query(Criteria.where("id").is(routeId));
+            mongoTemplate.remove(query, "routePath");
+            mongoTemplate.insert(JSON.toJSONString(definition), "routePath");
         } catch (Exception e) {
+            e.printStackTrace();
             return "update fail,not find route  routeId: " + routeAddForm.getRouteId();
-        }
-        try {
-            add(routeAddForm);
-        } catch (Exception e) {
-            return "update route fail";
         }
         return "update success";
     }
@@ -95,10 +88,14 @@ public class DynamicRouteService implements ApplicationEventPublisherAware {
      * @return
      */
     public String delete(RouteDelForm routeDelForm) {
+        String routeId = routeDelForm.getRouteId();
         try {
             this.routeDefinitionWriter.delete(Mono.just(routeDelForm.getRouteId()));
             //删除redis信息
-            redisTemplate.opsForHash().delete(GATEWAY_ROUTES, routeDelForm.getRouteId());
+            redisTemplate.opsForHash().delete(GATEWAY_ROUTES, routeId);
+            //删除mongo信息
+            Query query = new Query(Criteria.where("id").is(routeId));
+            mongoTemplate.remove(query, "routePath");
             notifyChanged();
             return "delete success";
         } catch (Exception e) {
