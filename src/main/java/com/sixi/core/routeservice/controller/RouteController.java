@@ -23,33 +23,32 @@ public class RouteController {
     @Autowired
     private DynamicRouteService dynamicRouteService;
 
+    /**
+     * 路由信息刷新
+     * @return
+     */
     @PostMapping("/route/notify")
     public String notifyChanged() {
         dynamicRouteService.notifyChanged();
         return "notify_success";
     }
 
+
     /**
-     * 增加路由
-     *
+     * 路由信息添加或修改
      * @param routeAddForm
      * @return
      */
-    @PostMapping("/route/add")
-    public String add(@Valid @RequestBody RouteAddForm routeAddForm) {
-        try {
-            return this.dynamicRouteService.add(routeAddForm);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return "success";
+    @PostMapping("/route/upsert")
+    public String upsert(@RequestBody RouteAddForm routeAddForm) {
+        return this.dynamicRouteService.upsert(routeAddForm);
     }
 
-    @PostMapping("/route/update")
-    public String update(@RequestBody RouteAddForm routeAddForm) {
-        return this.dynamicRouteService.update(routeAddForm);
-    }
-
+    /**
+     * 路由信息删除
+     * @param routeDelForm
+     * @return
+     */
     @PostMapping("/route/delete")
     public String delete(@Valid @RequestBody RouteDelForm routeDelForm) {
         return this.dynamicRouteService.delete(routeDelForm);
