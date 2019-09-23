@@ -18,7 +18,7 @@ import javax.validation.constraints.NotNull;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RouteAddForm {
+public class RouteForm {
 
     /**
      * 路由id

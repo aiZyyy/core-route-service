@@ -1,8 +1,10 @@
 package com.sixi.core.routeservice.controller;
 
 
-import com.sixi.core.routeservice.domain.form.RouteAddForm;
+import com.sixi.core.routeservice.domain.form.RouteForm;
 import com.sixi.core.routeservice.domain.form.RouteDelForm;
+import com.sixi.core.routeservice.domain.form.RouteSkipAddForm;
+import com.sixi.core.routeservice.domain.form.RouteSkipDelForm;
 import com.sixi.core.routeservice.service.DynamicRouteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,15 +35,36 @@ public class RouteController {
         return "notify_success";
     }
 
+    /**
+     * 可跳过验签路径添加
+     *
+     * @param routeSkipForm
+     */
+    @PostMapping("/route/skiprouteadd")
+    public String skipRouteAdd(@Valid @RequestBody RouteSkipAddForm routeSkipForm){
+        dynamicRouteService.skipRouteAdd(routeSkipForm);
+        return "success";
+    }
+
+    /**
+     * 可跳过验签路径删除
+     *
+     * @param routeSkipDelForm
+     */
+    @PostMapping("/route/skiproutedel")
+    public String skipRouteDel(@Valid @RequestBody RouteSkipDelForm routeSkipDelForm){
+        dynamicRouteService.skipRouteDel(routeSkipDelForm);
+        return "del success";
+    }
 
     /**
      * 路由信息添加或修改
-     * @param routeAddForm
+     * @param routeForm
      * @return
      */
     @PostMapping("/route/upsert")
-    public String upsert(@RequestBody RouteAddForm routeAddForm) {
-        return this.dynamicRouteService.upsert(routeAddForm);
+    public String upsert(@Valid @RequestBody RouteForm routeForm) {
+        return this.dynamicRouteService.upsert(routeForm);
     }
 
     /**

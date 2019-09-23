@@ -1,8 +1,10 @@
 package com.sixi.core.routeservice.service;
 
 import com.alibaba.fastjson.JSON;
-import com.sixi.core.routeservice.domain.form.RouteAddForm;
+import com.sixi.core.routeservice.domain.form.RouteForm;
 import com.sixi.core.routeservice.domain.form.RouteDelForm;
+import com.sixi.core.routeservice.domain.form.RouteSkipAddForm;
+import com.sixi.core.routeservice.domain.form.RouteSkipDelForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.event.RefreshRoutesEvent;
 import org.springframework.cloud.gateway.filter.FilterDefinition;
@@ -39,6 +41,8 @@ public class DynamicRouteService implements ApplicationEventPublisherAware {
 
     public static final String GATEWAY_ROUTES = "gateway_routes";
 
+    public static final String SKIP_ROUTES = "skip_routes";
+
     private ApplicationEventPublisher publisher;
 
     @Autowired
@@ -46,7 +50,6 @@ public class DynamicRouteService implements ApplicationEventPublisherAware {
 
     @Autowired
     private MongoTemplate mongoTemplate;
-
 
     @Autowired
     StringRedisTemplate redisTemplate;
@@ -59,14 +62,34 @@ public class DynamicRouteService implements ApplicationEventPublisherAware {
     }
 
     /**
+     * 可跳过验签路径添加
+     *
+     * @param routeSkipForm
+     */
+    public void skipRouteAdd(RouteSkipAddForm routeSkipForm) {
+        String skipRoute = routeSkipForm.getSkipRoute();
+        redisTemplate.opsForHash().put(SKIP_ROUTES,skipRoute,"0");
+    }
+
+    /**
+     * 可跳过验签路径删除
+     *
+     * @param routeSkipDelForm
+     */
+    public void skipRouteDel(RouteSkipDelForm routeSkipDelForm) {
+        String skipRoute = routeSkipDelForm.getSkipRoute();
+        redisTemplate.opsForHash().delete(SKIP_ROUTES,skipRoute);
+    }
+
+    /**
      * 更新或添加路由
      *
-     * @param routeAddForm
+     * @param routeForm
      * @return
      */
-    public String upsert(RouteAddForm routeAddForm) {
-        String routeId = routeAddForm.getRouteId();
-        RouteDefinition definition = assembleRouteDefinition(routeAddForm);
+    public String upsert(RouteForm routeForm) {
+        String routeId = routeForm.getRouteId();
+        RouteDefinition definition = assembleRouteDefinition(routeForm);
         try {
             //放入内存
             routeDefinitionWriter.save(Mono.just(definition)).subscribe();
@@ -76,7 +99,7 @@ public class DynamicRouteService implements ApplicationEventPublisherAware {
             mongoTemplate.insert(JSON.toJSONString(definition), "routePath");
         } catch (Exception e) {
             e.printStackTrace();
-            return "update fail,not find route  routeId: " + routeAddForm.getRouteId();
+            return "update fail,not find route  routeId: " + routeForm.getRouteId();
         }
         return "update success";
     }
@@ -113,16 +136,16 @@ public class DynamicRouteService implements ApplicationEventPublisherAware {
     /**
      * 转换为RouteDefinition类型
      *
-     * @param routeAddForm
+     * @param routeForm
      * @return
      */
-    private RouteDefinition assembleRouteDefinition(RouteAddForm routeAddForm) {
-        String path = routeAddForm.getPath();
+    private RouteDefinition assembleRouteDefinition(RouteForm routeForm) {
+        String path = routeForm.getPath();
 
         RouteDefinition definition = new RouteDefinition();
 
         // ID
-        definition.setId(routeAddForm.getRouteId());
+        definition.setId(routeForm.getRouteId());
 
         // Predicates
         List<PredicateDefinition> pdList = new ArrayList<>();
@@ -148,11 +171,11 @@ public class DynamicRouteService implements ApplicationEventPublisherAware {
 
         String url;
         //判断uri是否为注册中心服务
-        if (1 == routeAddForm.getType()) {
+        if (1 == routeForm.getType()) {
             //为注册中心服务
-            url = "lb://" + routeAddForm.getUri();
+            url = "lb://" + routeForm.getUri();
         } else {
-            url = "https://" + routeAddForm.getUri();
+            url = "https://" + routeForm.getUri();
         }
 
         // URI
