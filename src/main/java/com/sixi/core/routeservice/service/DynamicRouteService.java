@@ -68,7 +68,7 @@ public class DynamicRouteService implements ApplicationEventPublisherAware {
      */
     public void skipRouteAdd(RouteSkipAddForm routeSkipForm) {
         String skipRoute = routeSkipForm.getSkipRoute();
-        redisTemplate.opsForHash().put(SKIP_ROUTES,skipRoute,"0");
+        redisTemplate.opsForHash().put(SKIP_ROUTES, skipRoute, "0");
     }
 
     /**
@@ -78,7 +78,7 @@ public class DynamicRouteService implements ApplicationEventPublisherAware {
      */
     public void skipRouteDel(RouteSkipDelForm routeSkipDelForm) {
         String skipRoute = routeSkipDelForm.getSkipRoute();
-        redisTemplate.opsForHash().delete(SKIP_ROUTES,skipRoute);
+        redisTemplate.opsForHash().delete(SKIP_ROUTES, skipRoute);
     }
 
     /**
@@ -175,7 +175,7 @@ public class DynamicRouteService implements ApplicationEventPublisherAware {
             //为注册中心服务
             url = "lb://" + routeForm.getUri();
         } else {
-            url = "https://" + routeForm.getUri();
+            url = routeForm.getUri();
         }
 
         // URI
