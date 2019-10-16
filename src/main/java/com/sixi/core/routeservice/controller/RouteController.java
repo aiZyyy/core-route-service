@@ -1,11 +1,10 @@
 package com.sixi.core.routeservice.controller;
 
 
-import com.sixi.core.routeservice.domain.form.RouteForm;
-import com.sixi.core.routeservice.domain.form.RouteDelForm;
-import com.sixi.core.routeservice.domain.form.RouteSkipAddForm;
-import com.sixi.core.routeservice.domain.form.RouteSkipDelForm;
-import com.sixi.core.routeservice.service.DynamicRouteService;
+import com.sixi.core.routeservice.domain.entity.GatewayRoute;
+import com.sixi.core.routeservice.domain.form.*;
+import com.sixi.core.routeservice.service.GatewayRouteService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,29 +19,20 @@ import javax.validation.Valid;
  * @Description:
  */
 @RestController
+@Slf4j
 public class RouteController {
 
     @Autowired
-    private DynamicRouteService dynamicRouteService;
-
-    /**
-     * 路由信息刷新
-     * @return
-     */
-    @PostMapping("/route/notify")
-    public String notifyChanged() {
-        dynamicRouteService.notifyChanged();
-        return "notify_success";
-    }
+    private GatewayRouteService gatewayRouteService;
 
     /**
      * 可跳过验签路径添加
      *
      * @param routeSkipForm
      */
-    @PostMapping("/route/skiprouteadd")
-    public String skipRouteAdd(@Valid @RequestBody RouteSkipAddForm routeSkipForm){
-        dynamicRouteService.skipRouteAdd(routeSkipForm);
+    @PostMapping("/route/skip/add")
+    public String skipRouteAdd(@Valid @RequestBody RouteSkipAddForm routeSkipForm) {
+        gatewayRouteService.skipRouteAdd(routeSkipForm);
         return "success";
     }
 
@@ -51,29 +41,42 @@ public class RouteController {
      *
      * @param routeSkipDelForm
      */
-    @PostMapping("/route/skiproutedel")
-    public String skipRouteDel(@Valid @RequestBody RouteSkipDelForm routeSkipDelForm){
-        dynamicRouteService.skipRouteDel(routeSkipDelForm);
+    @PostMapping("/route/skip/del")
+    public String skipRouteDel(@Valid @RequestBody RouteSkipDelForm routeSkipDelForm) {
+        gatewayRouteService.skipRouteDel(routeSkipDelForm);
         return "del success";
     }
 
     /**
-     * 路由信息添加或修改
+     * 路由信息添加
+     *
      * @param routeForm
      * @return
      */
-    @PostMapping("/route/upsert")
-    public String upsert(@Valid @RequestBody RouteForm routeForm) {
-        return this.dynamicRouteService.upsert(routeForm);
+    @PostMapping("/route/add")
+    public GatewayRoute add(@Valid @RequestBody RouteForm routeForm) {
+        return this.gatewayRouteService.addRoute(routeForm);
+    }
+
+    /**
+     * 路由信息修改
+     *
+     * @param routeForm
+     * @return
+     */
+    @PostMapping("/route/update")
+    public GatewayRoute update(@Valid @RequestBody RouteUpdateForm routeForm) {
+        return this.gatewayRouteService.updateRoute(routeForm);
     }
 
     /**
      * 路由信息删除
+     *
      * @param routeDelForm
      * @return
      */
     @PostMapping("/route/delete")
-    public String delete(@Valid @RequestBody RouteDelForm routeDelForm) {
-        return this.dynamicRouteService.delete(routeDelForm);
+    public Integer delete(@Valid @RequestBody RouteDelForm routeDelForm) {
+        return this.gatewayRouteService.delRoute(routeDelForm);
     }
 }

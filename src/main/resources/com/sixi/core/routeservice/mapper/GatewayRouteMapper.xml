@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sixi.core.routeservice.mapper.GatewayRouteMapper">
+  <resultMap id="BaseResultMap" type="com.sixi.core.routeservice.domain.entity.GatewayRoute">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="route_id" jdbcType="VARCHAR" property="routeId" />
+    <result column="uri" jdbcType="VARCHAR" property="uri" />
+    <result column="type" jdbcType="INTEGER" property="type" />
+    <result column="order" jdbcType="INTEGER" property="order" />
+    <result column="path" jdbcType="VARCHAR" property="path" />
+    <result column="strip_prefix" jdbcType="INTEGER" property="stripPrefix" />
+    <result column="predicates" jdbcType="VARCHAR" property="predicates" />
+    <result column="filters" jdbcType="VARCHAR" property="filters" />
+    <result column="enable" jdbcType="INTEGER" property="enable" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, route_id, uri, `type`, `order`, `path`, strip_prefix, predicates, filters, `enable`, 
+    create_time, update_time
+  </sql>
+  <select id="selectByExample" parameterType="com.sixi.core.routeservice.domain.entity.GatewayRouteExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from `gateway_route`
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from `gateway_route`
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from `gateway_route`
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.sixi.core.routeservice.domain.entity.GatewayRouteExample">
+    delete from `gateway_route`
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.sixi.core.routeservice.domain.entity.GatewayRoute" useGeneratedKeys="true">
+    insert into `gateway_route` (route_id, uri, `type`, 
+      `order`, `path`, strip_prefix, 
+      predicates, filters, `enable`, 
+      create_time, update_time)
+    values (#{routeId,jdbcType=VARCHAR}, #{uri,jdbcType=VARCHAR}, #{type,jdbcType=INTEGER}, 
+      #{order,jdbcType=INTEGER}, #{path,jdbcType=VARCHAR}, #{stripPrefix,jdbcType=INTEGER}, 
+      #{predicates,jdbcType=VARCHAR}, #{filters,jdbcType=VARCHAR}, #{enable,jdbcType=INTEGER}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.sixi.core.routeservice.domain.entity.GatewayRoute" useGeneratedKeys="true">
+    insert into `gateway_route`
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="routeId != null">
+        route_id,
+      </if>
+      <if test="uri != null">
+        uri,
+      </if>
+      <if test="type != null">
+        `type`,
+      </if>
+      <if test="order != null">
+        `order`,
+      </if>
+      <if test="path != null">
+        `path`,
+      </if>
+      <if test="stripPrefix != null">
+        strip_prefix,
+      </if>
+      <if test="predicates != null">
+        predicates,
+      </if>
+      <if test="filters != null">
+        filters,
+      </if>
+      <if test="enable != null">
+        `enable`,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="routeId != null">
+        #{routeId,jdbcType=VARCHAR},
+      </if>
+      <if test="uri != null">
+        #{uri,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null">
+        #{type,jdbcType=INTEGER},
+      </if>
+      <if test="order != null">
+        #{order,jdbcType=INTEGER},
+      </if>
+      <if test="path != null">
+        #{path,jdbcType=VARCHAR},
+      </if>
+      <if test="stripPrefix != null">
+        #{stripPrefix,jdbcType=INTEGER},
+      </if>
+      <if test="predicates != null">
+        #{predicates,jdbcType=VARCHAR},
+      </if>
+      <if test="filters != null">
+        #{filters,jdbcType=VARCHAR},
+      </if>
+      <if test="enable != null">
+        #{enable,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.sixi.core.routeservice.domain.entity.GatewayRouteExample" resultType="java.lang.Long">
+    select count(*) from `gateway_route`
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update `gateway_route`
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.routeId != null">
+        route_id = #{record.routeId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.uri != null">
+        uri = #{record.uri,jdbcType=VARCHAR},
+      </if>
+      <if test="record.type != null">
+        `type` = #{record.type,jdbcType=INTEGER},
+      </if>
+      <if test="record.order != null">
+        `order` = #{record.order,jdbcType=INTEGER},
+      </if>
+      <if test="record.path != null">
+        `path` = #{record.path,jdbcType=VARCHAR},
+      </if>
+      <if test="record.stripPrefix != null">
+        strip_prefix = #{record.stripPrefix,jdbcType=INTEGER},
+      </if>
+      <if test="record.predicates != null">
+        predicates = #{record.predicates,jdbcType=VARCHAR},
+      </if>
+      <if test="record.filters != null">
+        filters = #{record.filters,jdbcType=VARCHAR},
+      </if>
+      <if test="record.enable != null">
+        `enable` = #{record.enable,jdbcType=INTEGER},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.updateTime != null">
+        update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update `gateway_route`
+    set id = #{record.id,jdbcType=INTEGER},
+      route_id = #{record.routeId,jdbcType=VARCHAR},
+      uri = #{record.uri,jdbcType=VARCHAR},
+      `type` = #{record.type,jdbcType=INTEGER},
+      `order` = #{record.order,jdbcType=INTEGER},
+      `path` = #{record.path,jdbcType=VARCHAR},
+      strip_prefix = #{record.stripPrefix,jdbcType=INTEGER},
+      predicates = #{record.predicates,jdbcType=VARCHAR},
+      filters = #{record.filters,jdbcType=VARCHAR},
+      `enable` = #{record.enable,jdbcType=INTEGER},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      update_time = #{record.updateTime,jdbcType=TIMESTAMP}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.sixi.core.routeservice.domain.entity.GatewayRoute">
+    update `gateway_route`
+    <set>
+      <if test="routeId != null">
+        route_id = #{routeId,jdbcType=VARCHAR},
+      </if>
+      <if test="uri != null">
+        uri = #{uri,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null">
+        `type` = #{type,jdbcType=INTEGER},
+      </if>
+      <if test="order != null">
+        `order` = #{order,jdbcType=INTEGER},
+      </if>
+      <if test="path != null">
+        `path` = #{path,jdbcType=VARCHAR},
+      </if>
+      <if test="stripPrefix != null">
+        strip_prefix = #{stripPrefix,jdbcType=INTEGER},
+      </if>
+      <if test="predicates != null">
+        predicates = #{predicates,jdbcType=VARCHAR},
+      </if>
+      <if test="filters != null">
+        filters = #{filters,jdbcType=VARCHAR},
+      </if>
+      <if test="enable != null">
+        `enable` = #{enable,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.sixi.core.routeservice.domain.entity.GatewayRoute">
+    update `gateway_route`
+    set route_id = #{routeId,jdbcType=VARCHAR},
+      uri = #{uri,jdbcType=VARCHAR},
+      `type` = #{type,jdbcType=INTEGER},
+      `order` = #{order,jdbcType=INTEGER},
+      `path` = #{path,jdbcType=VARCHAR},
+      strip_prefix = #{stripPrefix,jdbcType=INTEGER},
+      predicates = #{predicates,jdbcType=VARCHAR},
+      filters = #{filters,jdbcType=VARCHAR},
+      `enable` = #{enable,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>
