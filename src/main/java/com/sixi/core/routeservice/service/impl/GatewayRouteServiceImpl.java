@@ -34,6 +34,8 @@ import java.util.*;
 @Transactional(rollbackFor = Exception.class)
 public class GatewayRouteServiceImpl implements GatewayRouteService, ApplicationEventPublisherAware {
 
+    public static final String DEFAULT_SYMBOL = "[]";
+
     public static final String GATEWAY_ROUTES = "gateway_routes";
 
     public static final String SKIP_ROUTES = "skip_routes";
@@ -73,7 +75,11 @@ public class GatewayRouteServiceImpl implements GatewayRouteService, Application
         GatewayRouteExample gatewayRouteExample = new GatewayRouteExample();
         gatewayRouteExample.createCriteria().andRouteIdEqualTo(routeId);
         List<GatewayRoute> gatewayRoutes = gatewayRouteMapper.selectByExample(gatewayRouteExample);
-        return gatewayRoutes.get(0);
+        if (CollectionUtils.isNotEmpty(gatewayRoutes)) {
+            return gatewayRoutes.get(0);
+        } else {
+            return null;
+        }
     }
 
     @Override
