@@ -17,7 +17,7 @@ import javax.validation.constraints.NotBlank;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RouteDelForm {
+public class RouteIdForm {
 
     @NotBlank(message = "路由id不能为空")
     private String routeId;

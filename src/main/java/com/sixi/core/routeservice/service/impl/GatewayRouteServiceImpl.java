@@ -6,27 +6,23 @@ import com.alibaba.fastjson.JSONObject;
 import com.sixi.core.routeservice.domain.entity.GatewayRoute;
 import com.sixi.core.routeservice.domain.entity.GatewayRouteExample;
 import com.sixi.core.routeservice.domain.form.*;
+import com.sixi.core.routeservice.kit.DozerBeanKit;
 import com.sixi.core.routeservice.mapper.GatewayRouteMapper;
 import com.sixi.core.routeservice.service.GatewayRouteService;
-import com.sixi.micro.common.kits.DozerBeanKit;
-import com.sixi.micro.common.utils.Assert;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.FilterDefinition;
 import org.springframework.cloud.gateway.handler.predicate.PredicateDefinition;
 import org.springframework.cloud.gateway.route.RouteDefinition;
-import org.springframework.cloud.gateway.route.RouteDefinitionWriter;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @Author: ZY
@@ -35,6 +31,7 @@ import java.util.Map;
  * @Description:
  */
 @Service
+@Transactional(rollbackFor = Exception.class)
 public class GatewayRouteServiceImpl implements GatewayRouteService, ApplicationEventPublisherAware {
 
     public static final String GATEWAY_ROUTES = "gateway_routes";
@@ -42,12 +39,6 @@ public class GatewayRouteServiceImpl implements GatewayRouteService, Application
     public static final String SKIP_ROUTES = "skip_routes";
 
     private ApplicationEventPublisher publisher;
-
-    @Autowired
-    private RouteDefinitionWriter routeDefinitionWriter;
-
-    @Autowired
-    private GatewayRouteService gatewayRouteService;
 
     @Autowired
     StringRedisTemplate redisTemplate;
@@ -94,9 +85,19 @@ public class GatewayRouteServiceImpl implements GatewayRouteService, Application
 
     @Override
     public GatewayRoute addRoute(RouteForm routeForm) {
-        GatewayRoute gatewayRoute = DozerBeanKit.map(routeForm, GatewayRoute.class);
-        gatewayRouteMapper.insertSelective(gatewayRoute);
-        return gatewayRoute;
+        String routeId = routeForm.getRouteId();
+        GatewayRoute oneByRouteId = findOneByRouteId(routeId);
+        if (Objects.isNull(oneByRouteId)) {
+            GatewayRoute gatewayRoute = DozerBeanKit.map(routeForm, GatewayRoute.class);
+            //插入数据库
+            gatewayRouteMapper.insertSelective(gatewayRoute);
+            //存入redis
+            RouteDefinition routeDefinition = assembleRouteDefinition(gatewayRoute);
+            redisTemplate.opsForHash().put(GATEWAY_ROUTES, routeId, JSON.toJSONString(routeDefinition));
+            return gatewayRoute;
+        } else {
+            return null;
+        }
     }
 
     @Override
@@ -104,21 +105,53 @@ public class GatewayRouteServiceImpl implements GatewayRouteService, Application
         String routeId = routeForm.getRouteId();
         GatewayRouteExample gatewayRouteExample = new GatewayRouteExample();
         gatewayRouteExample.createCriteria().andRouteIdEqualTo(routeId);
-        GatewayRoute gatewayRoute = DozerBeanKit.map(routeForm, GatewayRoute.class);
-        gatewayRouteMapper.updateByExampleSelective(gatewayRoute,gatewayRouteExample);
-        return gatewayRoute;
+        List<GatewayRoute> gatewayRoutes = gatewayRouteMapper.selectByExample(gatewayRouteExample);
+        if (CollectionUtils.isNotEmpty(gatewayRoutes)) {
+            GatewayRoute gatewayRoute = DozerBeanKit.map(routeForm, GatewayRoute.class);
+            //修改数据库信息
+            gatewayRouteMapper.updateByExampleSelective(gatewayRoute, gatewayRouteExample);
+            GatewayRoute oneByRouteId = findOneByRouteId(routeId);
+            RouteDefinition routeDefinition = assembleRouteDefinition(oneByRouteId);
+            //如果为启用状态路由,更新redis信息
+            if (oneByRouteId.getEnable() == 0) {
+                redisTemplate.opsForHash().put(GATEWAY_ROUTES, routeId, JSON.toJSONString(routeDefinition));
+            }
+            return gatewayRoute;
+        } else {
+            return null;
+        }
     }
 
     @Override
-        public Integer delRoute(RouteDelForm routeForm) {
+    public Integer openRoute(RouteIdForm routeForm) {
+        String routeId = routeForm.getRouteId();
+        GatewayRouteExample gatewayRouteExample = new GatewayRouteExample();
+        gatewayRouteExample.createCriteria().andRouteIdEqualTo(routeId).andEnableEqualTo(1);
+        List<GatewayRoute> gatewayRoutes = gatewayRouteMapper.selectByExample(gatewayRouteExample);
+        if (CollectionUtils.isNotEmpty(gatewayRoutes)) {
+            GatewayRoute gatewayRoute = GatewayRoute.builder().enable(0).build();
+            int update = gatewayRouteMapper.updateByExampleSelective(gatewayRoute, gatewayRouteExample);
+            RouteDefinition routeDefinition = assembleRouteDefinition(gatewayRoutes.get(0));
+            redisTemplate.opsForHash().put(GATEWAY_ROUTES, routeForm.getRouteId(), JSON.toJSONString(routeDefinition));
+            return update;
+        } else {
+            return 0;
+        }
+    }
+
+    @Override
+    public Integer delRoute(RouteIdForm routeForm) {
         String routeId = routeForm.getRouteId();
         GatewayRouteExample gatewayRouteExample = new GatewayRouteExample();
         gatewayRouteExample.createCriteria().andRouteIdEqualTo(routeId).andEnableEqualTo(0);
         List<GatewayRoute> gatewayRoutes = gatewayRouteMapper.selectByExample(gatewayRouteExample);
-        Assert.forbidden(CollectionUtils.isEmpty(gatewayRoutes),"该路由不存在,或者已经为关闭状态");
-        GatewayRoute gatewayRoute = GatewayRoute.builder().enable(1).build();
-        int update = gatewayRouteMapper.updateByExampleSelective(gatewayRoute, gatewayRouteExample);
-        return update;
+        if (CollectionUtils.isNotEmpty(gatewayRoutes)) {
+            GatewayRoute gatewayRoute = GatewayRoute.builder().enable(1).build();
+            int update = gatewayRouteMapper.updateByExampleSelective(gatewayRoute, gatewayRouteExample);
+            return update;
+        } else {
+            return 0;
+        }
     }
 
 

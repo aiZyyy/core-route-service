@@ -2,7 +2,9 @@ package com.sixi.core.routeservice.service;
 
 import com.sixi.core.routeservice.domain.entity.GatewayRoute;
 import com.sixi.core.routeservice.domain.form.*;
+import org.springframework.web.bind.annotation.RequestBody;
 
+import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -44,7 +46,14 @@ public interface GatewayRouteService {
     GatewayRoute updateRoute(RouteUpdateForm routeUpdateForm);
 
     /**
+     * 开启路由
+     * @param routeForm
+     * @return
+     */
+    Integer openRoute(RouteIdForm routeForm);
+
+    /**
      * 停用路由
      */
-    Integer delRoute(RouteDelForm routeForm);
+    Integer delRoute(RouteIdForm routeForm);
 }
