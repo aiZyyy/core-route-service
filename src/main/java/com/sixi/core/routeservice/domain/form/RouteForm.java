@@ -64,8 +64,4 @@ public class RouteForm {
      */
     private String filters;
 
-    /**
-     * 是否启用
-     */
-    private Integer enable;
 }

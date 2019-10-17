@@ -34,8 +34,6 @@ import java.util.*;
 @Transactional(rollbackFor = Exception.class)
 public class GatewayRouteServiceImpl implements GatewayRouteService, ApplicationEventPublisherAware {
 
-    public static final String DEFAULT_SYMBOL = "[]";
-
     public static final String GATEWAY_ROUTES = "gateway_routes";
 
     public static final String SKIP_ROUTES = "skip_routes";
@@ -212,7 +210,7 @@ public class GatewayRouteServiceImpl implements GatewayRouteService, Application
         //添加验签过滤器
         FilterDefinition authFilter = new FilterDefinition();
         Map<String, String> authParams = new HashMap<>(8);
-        authParams.put("auth-filter", "#{@authorizationFilter}");
+        authFilter.setName("Auth");
         authFilter.setArgs(authParams);
         fdList.add(authFilter);
         //获取额外filter
