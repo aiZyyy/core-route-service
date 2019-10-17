@@ -173,8 +173,6 @@ public class GatewayRouteServiceImpl implements GatewayRouteService, Application
      */
     private RouteDefinition assembleRouteDefinition(GatewayRoute gatewayRoute) {
         RouteDefinition definition = new RouteDefinition();
-        //获取映射路径
-        String path = gatewayRoute.getPath();
         //设定routeId
         definition.setId(gatewayRoute.getRouteId());
         String url;
@@ -207,6 +205,12 @@ public class GatewayRouteServiceImpl implements GatewayRouteService, Application
             stripFilter.setArgs(stripParams);
             fdList.add(stripFilter);
         }
+        //添加缓存过滤器
+        FilterDefinition cacheFilter = new FilterDefinition();
+        Map<String, String> cacheParams = new HashMap<>(8);
+        cacheFilter.setName("Cache");
+        cacheFilter.setArgs(cacheParams);
+        fdList.add(cacheFilter);
         //添加验签过滤器
         FilterDefinition authFilter = new FilterDefinition();
         Map<String, String> authParams = new HashMap<>(8);
