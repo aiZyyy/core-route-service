@@ -55,5 +55,5 @@ public interface GatewayRouteService {
     /**
      * 停用路由
      */
-    Integer delRoute(RouteIdForm routeForm);
+    Integer closeRoute(RouteIdForm routeForm);
 }

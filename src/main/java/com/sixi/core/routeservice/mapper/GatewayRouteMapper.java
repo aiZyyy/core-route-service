@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
  * Created with Mybatis Generator Plugin
  *
  * @author MiaoWoo
- * Created on 2019/10/16 10:26.
+ * Created on 2019/10/18 03:48.
  */
 @Repository
 public interface GatewayRouteMapper {

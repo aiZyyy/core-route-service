@@ -117,7 +117,7 @@ public class GatewayRouteServiceImpl implements GatewayRouteService, Application
             GatewayRoute oneByRouteId = findOneByRouteId(routeId);
             RouteDefinition routeDefinition = assembleRouteDefinition(oneByRouteId);
             //如果为启用状态路由,更新redis信息
-            if (oneByRouteId.getEnable() == 0) {
+            if (oneByRouteId.getEnable() == 1) {
                 redisTemplate.opsForHash().put(GATEWAY_ROUTES, routeId, JSON.toJSONString(routeDefinition));
             }
             return gatewayRoute;
@@ -130,10 +130,10 @@ public class GatewayRouteServiceImpl implements GatewayRouteService, Application
     public Integer openRoute(RouteIdForm routeForm) {
         String routeId = routeForm.getRouteId();
         GatewayRouteExample gatewayRouteExample = new GatewayRouteExample();
-        gatewayRouteExample.createCriteria().andRouteIdEqualTo(routeId).andEnableEqualTo(1);
+        gatewayRouteExample.createCriteria().andRouteIdEqualTo(routeId).andEnableEqualTo(0);
         List<GatewayRoute> gatewayRoutes = gatewayRouteMapper.selectByExample(gatewayRouteExample);
         if (CollectionUtils.isNotEmpty(gatewayRoutes)) {
-            GatewayRoute gatewayRoute = GatewayRoute.builder().enable(0).build();
+            GatewayRoute gatewayRoute = GatewayRoute.builder().enable(1).build();
             int update = gatewayRouteMapper.updateByExampleSelective(gatewayRoute, gatewayRouteExample);
             RouteDefinition routeDefinition = assembleRouteDefinition(gatewayRoutes.get(0));
             redisTemplate.opsForHash().put(GATEWAY_ROUTES, routeForm.getRouteId(), JSON.toJSONString(routeDefinition));
@@ -144,14 +144,16 @@ public class GatewayRouteServiceImpl implements GatewayRouteService, Application
     }
 
     @Override
-    public Integer delRoute(RouteIdForm routeForm) {
+    public Integer closeRoute(RouteIdForm routeForm) {
         String routeId = routeForm.getRouteId();
         GatewayRouteExample gatewayRouteExample = new GatewayRouteExample();
-        gatewayRouteExample.createCriteria().andRouteIdEqualTo(routeId).andEnableEqualTo(0);
+        gatewayRouteExample.createCriteria().andRouteIdEqualTo(routeId).andEnableEqualTo(1);
         List<GatewayRoute> gatewayRoutes = gatewayRouteMapper.selectByExample(gatewayRouteExample);
         if (CollectionUtils.isNotEmpty(gatewayRoutes)) {
-            GatewayRoute gatewayRoute = GatewayRoute.builder().enable(1).build();
+            GatewayRoute gatewayRoute = GatewayRoute.builder().enable(0).build();
             int update = gatewayRouteMapper.updateByExampleSelective(gatewayRoute, gatewayRouteExample);
+            //删除redis信息
+            redisTemplate.opsForHash().delete(GATEWAY_ROUTES, routeId);
             return update;
         } else {
             return 0;
@@ -176,7 +178,6 @@ public class GatewayRouteServiceImpl implements GatewayRouteService, Application
         //设定routeId
         definition.setId(gatewayRoute.getRouteId());
         String url;
-        //判断uri是否为注册中心服务
         if (0 == gatewayRoute.getType()) {
             //为注册中心服务
             url = "lb://" + gatewayRoute.getUri();
@@ -186,11 +187,9 @@ public class GatewayRouteServiceImpl implements GatewayRouteService, Application
         //设定URI
         URI uri = UriComponentsBuilder.fromUriString(url).build().toUri();
         definition.setUri(uri);
-
         //设定order
         Integer order = gatewayRoute.getOrder();
         definition.setOrder(order);
-
         // Filters
         List<FilterDefinition> fdList = new ArrayList<>();
         //获取路径是否去掉前缀
@@ -205,18 +204,24 @@ public class GatewayRouteServiceImpl implements GatewayRouteService, Application
             stripFilter.setArgs(stripParams);
             fdList.add(stripFilter);
         }
+        Integer routeCacheFilter = gatewayRoute.getCacheFilter();
         //添加缓存过滤器
-        FilterDefinition cacheFilter = new FilterDefinition();
-        Map<String, String> cacheParams = new HashMap<>(8);
-        cacheFilter.setName("Cache");
-        cacheFilter.setArgs(cacheParams);
-        fdList.add(cacheFilter);
+        if (1 == routeCacheFilter) {
+            FilterDefinition cacheFilter = new FilterDefinition();
+            Map<String, String> cacheParams = new HashMap<>(8);
+            cacheFilter.setName("Cache");
+            cacheFilter.setArgs(cacheParams);
+            fdList.add(cacheFilter);
+        }
+        Integer routeAuthFilter = gatewayRoute.getAuthFilter();
         //添加验签过滤器
-        FilterDefinition authFilter = new FilterDefinition();
-        Map<String, String> authParams = new HashMap<>(8);
-        authFilter.setName("Auth");
-        authFilter.setArgs(authParams);
-        fdList.add(authFilter);
+        if (1 == routeAuthFilter) {
+            FilterDefinition authFilter = new FilterDefinition();
+            Map<String, String> authParams = new HashMap<>(8);
+            authFilter.setName("Auth");
+            authFilter.setArgs(authParams);
+            fdList.add(authFilter);
+        }
         //获取额外filter
         String filters = gatewayRoute.getFilters();
         if (null != filters) {
@@ -227,7 +232,6 @@ public class GatewayRouteServiceImpl implements GatewayRouteService, Application
         }
         //设定filters
         definition.setFilters(fdList);
-
         //Predicates
         List<PredicateDefinition> pdList = new ArrayList<>();
         PredicateDefinition predicate = new PredicateDefinition();
@@ -247,8 +251,6 @@ public class GatewayRouteServiceImpl implements GatewayRouteService, Application
         }
         //设定Predicates
         definition.setPredicates(pdList);
-
-        System.out.println("definition:" + JSON.toJSONString(definition));
         return definition;
     }
 }

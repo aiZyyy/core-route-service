@@ -53,7 +53,7 @@ public class RouteController {
      * @param routeForm
      * @return
      */
-    @PostMapping("/route/addRoute")
+    @PostMapping("/route/add")
     public GatewayRoute addRoute(@Valid @RequestBody RouteForm routeForm) {
         return this.gatewayRouteService.addRoute(routeForm);
     }
@@ -64,7 +64,7 @@ public class RouteController {
      * @param routeForm
      * @return
      */
-    @PostMapping("/route/updateRoute")
+    @PostMapping("/route/update")
     public GatewayRoute updateRoute(@Valid @RequestBody RouteUpdateForm routeForm) {
         return this.gatewayRouteService.updateRoute(routeForm);
     }
@@ -81,13 +81,13 @@ public class RouteController {
     }
 
     /**
-     * 路由信息删除
+     * 路由状态关闭
      *
      * @param routeDelForm
      * @return
      */
-    @PostMapping("/route/delRoute")
-    public Integer delRoute(@Valid @RequestBody RouteIdForm routeDelForm) {
-        return this.gatewayRouteService.delRoute(routeDelForm);
+    @PostMapping("/route/close")
+    public Integer closeRoute(@Valid @RequestBody RouteIdForm routeDelForm) {
+        return this.gatewayRouteService.closeRoute(routeDelForm);
     }
 }

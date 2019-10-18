@@ -46,6 +46,16 @@ public class RouteUpdateForm {
     private Integer stripPrefix;
 
     /**
+     * 是否加入验签过滤器,0:不加入 1:加入
+     */
+    private Integer authFilter;
+
+    /**
+     * 是否加入缓存过滤器,0:不加入 1:加入
+     */
+    private Integer cacheFilter;
+
+    /**
      * 路由断言信息
      */
     private String predicates;

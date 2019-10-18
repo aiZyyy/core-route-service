@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
  * Created with Mybatis Generator Plugin
  *
  * @author MiaoWoo
- * Created on 2019/10/16 10:26.
+ * Created on 2019/10/18 03:48.
  */
 @Data
 @Builder
@@ -30,6 +30,10 @@ public class GatewayRoute {
     private String path;
 
     private Integer stripPrefix;
+
+    private Integer authFilter;
+
+    private Integer cacheFilter;
 
     private String predicates;
 

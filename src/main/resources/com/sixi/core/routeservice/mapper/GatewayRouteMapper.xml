@@ -9,6 +9,8 @@
     <result column="order" jdbcType="INTEGER" property="order" />
     <result column="path" jdbcType="VARCHAR" property="path" />
     <result column="strip_prefix" jdbcType="INTEGER" property="stripPrefix" />
+    <result column="auth_filter" jdbcType="INTEGER" property="authFilter" />
+    <result column="cache_filter" jdbcType="INTEGER" property="cacheFilter" />
     <result column="predicates" jdbcType="VARCHAR" property="predicates" />
     <result column="filters" jdbcType="VARCHAR" property="filters" />
     <result column="enable" jdbcType="INTEGER" property="enable" />
@@ -74,8 +76,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, route_id, uri, `type`, `order`, `path`, strip_prefix, predicates, filters, `enable`, 
-    create_time, update_time
+    id, route_id, uri, `type`, `order`, `path`, strip_prefix, auth_filter, cache_filter, 
+    predicates, filters, `enable`, create_time, update_time
   </sql>
   <select id="selectByExample" parameterType="com.sixi.core.routeservice.domain.entity.GatewayRouteExample" resultMap="BaseResultMap">
     select
@@ -110,12 +112,14 @@
   <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.sixi.core.routeservice.domain.entity.GatewayRoute" useGeneratedKeys="true">
     insert into `gateway_route` (route_id, uri, `type`, 
       `order`, `path`, strip_prefix, 
-      predicates, filters, `enable`, 
-      create_time, update_time)
+      auth_filter, cache_filter, predicates, 
+      filters, `enable`, create_time, 
+      update_time)
     values (#{routeId,jdbcType=VARCHAR}, #{uri,jdbcType=VARCHAR}, #{type,jdbcType=INTEGER}, 
       #{order,jdbcType=INTEGER}, #{path,jdbcType=VARCHAR}, #{stripPrefix,jdbcType=INTEGER}, 
-      #{predicates,jdbcType=VARCHAR}, #{filters,jdbcType=VARCHAR}, #{enable,jdbcType=INTEGER}, 
-      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP})
+      #{authFilter,jdbcType=INTEGER}, #{cacheFilter,jdbcType=INTEGER}, #{predicates,jdbcType=VARCHAR}, 
+      #{filters,jdbcType=VARCHAR}, #{enable,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{updateTime,jdbcType=TIMESTAMP})
   </insert>
   <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.sixi.core.routeservice.domain.entity.GatewayRoute" useGeneratedKeys="true">
     insert into `gateway_route`
@@ -137,6 +141,12 @@
       </if>
       <if test="stripPrefix != null">
         strip_prefix,
+      </if>
+      <if test="authFilter != null">
+        auth_filter,
+      </if>
+      <if test="cacheFilter != null">
+        cache_filter,
       </if>
       <if test="predicates != null">
         predicates,
@@ -172,6 +182,12 @@
       </if>
       <if test="stripPrefix != null">
         #{stripPrefix,jdbcType=INTEGER},
+      </if>
+      <if test="authFilter != null">
+        #{authFilter,jdbcType=INTEGER},
+      </if>
+      <if test="cacheFilter != null">
+        #{cacheFilter,jdbcType=INTEGER},
       </if>
       <if test="predicates != null">
         #{predicates,jdbcType=VARCHAR},
@@ -220,6 +236,12 @@
       <if test="record.stripPrefix != null">
         strip_prefix = #{record.stripPrefix,jdbcType=INTEGER},
       </if>
+      <if test="record.authFilter != null">
+        auth_filter = #{record.authFilter,jdbcType=INTEGER},
+      </if>
+      <if test="record.cacheFilter != null">
+        cache_filter = #{record.cacheFilter,jdbcType=INTEGER},
+      </if>
       <if test="record.predicates != null">
         predicates = #{record.predicates,jdbcType=VARCHAR},
       </if>
@@ -249,6 +271,8 @@
       `order` = #{record.order,jdbcType=INTEGER},
       `path` = #{record.path,jdbcType=VARCHAR},
       strip_prefix = #{record.stripPrefix,jdbcType=INTEGER},
+      auth_filter = #{record.authFilter,jdbcType=INTEGER},
+      cache_filter = #{record.cacheFilter,jdbcType=INTEGER},
       predicates = #{record.predicates,jdbcType=VARCHAR},
       filters = #{record.filters,jdbcType=VARCHAR},
       `enable` = #{record.enable,jdbcType=INTEGER},
@@ -279,6 +303,12 @@
       <if test="stripPrefix != null">
         strip_prefix = #{stripPrefix,jdbcType=INTEGER},
       </if>
+      <if test="authFilter != null">
+        auth_filter = #{authFilter,jdbcType=INTEGER},
+      </if>
+      <if test="cacheFilter != null">
+        cache_filter = #{cacheFilter,jdbcType=INTEGER},
+      </if>
       <if test="predicates != null">
         predicates = #{predicates,jdbcType=VARCHAR},
       </if>
@@ -305,6 +335,8 @@
       `order` = #{order,jdbcType=INTEGER},
       `path` = #{path,jdbcType=VARCHAR},
       strip_prefix = #{stripPrefix,jdbcType=INTEGER},
+      auth_filter = #{authFilter,jdbcType=INTEGER},
+      cache_filter = #{cacheFilter,jdbcType=INTEGER},
       predicates = #{predicates,jdbcType=VARCHAR},
       filters = #{filters,jdbcType=VARCHAR},
       `enable` = #{enable,jdbcType=INTEGER},

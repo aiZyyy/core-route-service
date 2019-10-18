@@ -8,7 +8,7 @@ import java.util.List;
  * Created with Mybatis Generator Plugin
  *
  * @author MiaoWoo
- * Created on 2019/10/16 10:26.
+ * Created on 2019/10/18 03:48.
  */
 public class GatewayRouteExample {
     protected String orderByClause;
@@ -558,6 +558,126 @@ public class GatewayRouteExample {
 
         public Criteria andStripPrefixNotBetween(Integer value1, Integer value2) {
             addCriterion("strip_prefix not between", value1, value2, "stripPrefix");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuthFilterIsNull() {
+            addCriterion("auth_filter is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuthFilterIsNotNull() {
+            addCriterion("auth_filter is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuthFilterEqualTo(Integer value) {
+            addCriterion("auth_filter =", value, "authFilter");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuthFilterNotEqualTo(Integer value) {
+            addCriterion("auth_filter <>", value, "authFilter");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuthFilterGreaterThan(Integer value) {
+            addCriterion("auth_filter >", value, "authFilter");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuthFilterGreaterThanOrEqualTo(Integer value) {
+            addCriterion("auth_filter >=", value, "authFilter");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuthFilterLessThan(Integer value) {
+            addCriterion("auth_filter <", value, "authFilter");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuthFilterLessThanOrEqualTo(Integer value) {
+            addCriterion("auth_filter <=", value, "authFilter");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuthFilterIn(List<Integer> values) {
+            addCriterion("auth_filter in", values, "authFilter");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuthFilterNotIn(List<Integer> values) {
+            addCriterion("auth_filter not in", values, "authFilter");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuthFilterBetween(Integer value1, Integer value2) {
+            addCriterion("auth_filter between", value1, value2, "authFilter");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuthFilterNotBetween(Integer value1, Integer value2) {
+            addCriterion("auth_filter not between", value1, value2, "authFilter");
+            return (Criteria) this;
+        }
+
+        public Criteria andCacheFilterIsNull() {
+            addCriterion("cache_filter is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCacheFilterIsNotNull() {
+            addCriterion("cache_filter is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCacheFilterEqualTo(Integer value) {
+            addCriterion("cache_filter =", value, "cacheFilter");
+            return (Criteria) this;
+        }
+
+        public Criteria andCacheFilterNotEqualTo(Integer value) {
+            addCriterion("cache_filter <>", value, "cacheFilter");
+            return (Criteria) this;
+        }
+
+        public Criteria andCacheFilterGreaterThan(Integer value) {
+            addCriterion("cache_filter >", value, "cacheFilter");
+            return (Criteria) this;
+        }
+
+        public Criteria andCacheFilterGreaterThanOrEqualTo(Integer value) {
+            addCriterion("cache_filter >=", value, "cacheFilter");
+            return (Criteria) this;
+        }
+
+        public Criteria andCacheFilterLessThan(Integer value) {
+            addCriterion("cache_filter <", value, "cacheFilter");
+            return (Criteria) this;
+        }
+
+        public Criteria andCacheFilterLessThanOrEqualTo(Integer value) {
+            addCriterion("cache_filter <=", value, "cacheFilter");
+            return (Criteria) this;
+        }
+
+        public Criteria andCacheFilterIn(List<Integer> values) {
+            addCriterion("cache_filter in", values, "cacheFilter");
+            return (Criteria) this;
+        }
+
+        public Criteria andCacheFilterNotIn(List<Integer> values) {
+            addCriterion("cache_filter not in", values, "cacheFilter");
+            return (Criteria) this;
+        }
+
+        public Criteria andCacheFilterBetween(Integer value1, Integer value2) {
+            addCriterion("cache_filter between", value1, value2, "cacheFilter");
+            return (Criteria) this;
+        }
+
+        public Criteria andCacheFilterNotBetween(Integer value1, Integer value2) {
+            addCriterion("cache_filter not between", value1, value2, "cacheFilter");
             return (Criteria) this;
         }
 
