@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * @Author: ZY
@@ -48,6 +49,27 @@ public class RouteController {
     }
 
     /**
+     * 查询路由信息
+     *
+     * @param routeForm
+     * @return
+     */
+    @PostMapping("/route/select/id")
+    public GatewayRoute findOneByRouteId(@Valid @RequestBody RouteIdForm routeForm) {
+        return gatewayRouteService.findOneByRouteId(routeForm.getRouteId());
+    }
+
+    /**
+     * 查询所有路由信息
+     *
+     * @return
+     */
+    @PostMapping("/route/select/all")
+    List<GatewayRoute> findListAll() {
+        return gatewayRouteService.findListAll();
+    }
+
+    /**
      * 路由信息添加
      *
      * @param routeForm
@@ -55,7 +77,7 @@ public class RouteController {
      */
     @PostMapping("/route/add")
     public GatewayRoute addRoute(@Valid @RequestBody RouteForm routeForm) {
-        return this.gatewayRouteService.addRoute(routeForm);
+        return gatewayRouteService.addRoute(routeForm);
     }
 
     /**
@@ -66,7 +88,7 @@ public class RouteController {
      */
     @PostMapping("/route/update")
     public GatewayRoute updateRoute(@Valid @RequestBody RouteUpdateForm routeForm) {
-        return this.gatewayRouteService.updateRoute(routeForm);
+        return gatewayRouteService.updateRoute(routeForm);
     }
 
     /**
@@ -77,7 +99,7 @@ public class RouteController {
      */
     @PostMapping("/route/open")
     public Integer openRoute(@Valid @RequestBody RouteIdForm routeForm) {
-        return this.gatewayRouteService.openRoute(routeForm);
+        return gatewayRouteService.openRoute(routeForm);
     }
 
     /**
@@ -88,6 +110,6 @@ public class RouteController {
      */
     @PostMapping("/route/close")
     public Integer closeRoute(@Valid @RequestBody RouteIdForm routeDelForm) {
-        return this.gatewayRouteService.closeRoute(routeDelForm);
+        return gatewayRouteService.closeRoute(routeDelForm);
     }
 }
