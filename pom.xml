@@ -13,7 +13,7 @@
 
     <parent>
         <groupId>com.itzy</groupId>
-        <artifactId>micro-servcie-parent</artifactId>
+        <artifactId>total-micro-service-parent</artifactId>
         <version>1.0-SNAPSHOT</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
